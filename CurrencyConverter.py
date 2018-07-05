@@ -1,19 +1,12 @@
 import requests
 from tkinter import *
+from tkinter import scrolledtext
 import json
 import sys
+import tkinter.messagebox as tkMessageBox
 
 def errormesg(msg):
-    def close():
-        w1.destroy()
-    print(sys.exc_info())
-    w1=Tk()
-    w1.title("An Error Occured")
-    l4=Label(w1,text=msg)
-    l4.grid(column=0,row=0)
-    b2=Button(w1,text="OK",command=close)
-    b2.grid(column=0,row=1)
-    w1.mainloop()
+    tkMessageBox.showinfo("Error", msg)
     
 def convert():
     try:
@@ -27,15 +20,15 @@ def convert():
             if r.status_code != 200:
                 errormesg("Currency Converter API Server seems to be down. Try again later!")
                 return
-            print(r.json())
-            print(r.status_code)
+            #print(r.json())
+            #print(r.status_code)
             jsonf=r.json()
             am1=jsonf[fromval+"_"+toval]["val"]
             if am=="":
                 dis=str(1)+" "+str(fromval)+" = "+str("{0:.2f}".format(am1))+" "+str(toval)
             else:
                 ans="{0:.2f}".format(float(am1)*float(am))
-                print(ans)
+                #print(ans)
                 dis=str(am)+" "+str(fromval)+" = "+str(ans)+" "+str(toval)
             l3.config(text=dis)
 
@@ -49,16 +42,12 @@ def convert():
 
 def help():
     def close1():
-        w1.destroy()
+        w2.destroy()
     w2=Tk()
-    sbar=Scrollbar(w2)
-    sbar.grid(column=0,row=2)
     w2.title("Currencies available")
-    str1=""
-    for str in options:
-        str1=str1+str+"\n"
-    l6=Label(w2,text=str1)
-    l6.grid(column=0,row=0)
+    txt=scrolledtext.ScrolledText(w2,width=40,height=10)
+    txt.grid(column=0,row=0)
+    txt.insert(INSERT,hstr)
     b4=Button(w2,text="OK",command=close1)
     b4.grid(column=0,row=1)
     w2.mainloop()
@@ -71,8 +60,12 @@ try:
     r=requests.get("https://free.currencyconverterapi.com/api/v5/currencies")
     if r.status_code != 200:
         errormesg("Currency Converter API Server seems to be down. Try again later!")
-    options=r.json()["results"].keys()
-    print(options)
+    options=list(r.json()["results"].keys())
+    options.sort()
+    hstr=""
+    for i in options:
+        hstr=hstr+"\n"+i+"-"+r.json()["results"][i]["currencyName"]
+    #print(hstr)
 except:
     errormesg("Currency Converter API Server seems to be down. Try again later!")
     
@@ -111,7 +104,7 @@ b1=Button(w,text="Exit",command=exit)
 b1.grid(column=2,row=3)
 
 
-l3=Label(w)
+l3=Label(w,bg="#98fb98")
 l3.grid(column=1,row=4)
 
 
